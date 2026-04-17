@@ -205,3 +205,9 @@ cython_debug/
 marimo/_static/
 marimo/_lsp/
 __marimo__/
+
+# Large raw data files (stored in Google Drive instead)
+data/raw/
+*.pkl
+__pycache__/
+.ipynb_checkpoints/
