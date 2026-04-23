@@ -194,7 +194,9 @@ BUSINESS_TYPES = [
 BUSINESS_AGES = [
     "Existing or more than 2 years old",
     "New Business or 2 years or less",
+    "Startup, Loan Funds will Open Business",
     "Unanswered",
+    "Unknown",
 ]
 
 
@@ -285,9 +287,9 @@ def build_input_row(
 
 
 def risk_level(prob):
-    if prob >= 0.15:
+    if prob >= 0.50:
         return "HIGH", "risk-high", "🔴"
-    elif prob >= 0.08:
+    elif prob >= 0.10:
         return "MEDIUM", "risk-medium", "🟡"
     else:
         return "LOW", "risk-low", "🟢"
