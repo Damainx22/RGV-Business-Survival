@@ -285,9 +285,9 @@ def build_input_row(
 
 
 def risk_level(prob):
-    if prob >= 0.5:
+    if prob >= 0.15:
         return "HIGH", "risk-high", "🔴"
-    elif prob >= 0.25:
+    elif prob >= 0.08:
         return "MEDIUM", "risk-medium", "🟡"
     else:
         return "LOW", "risk-low", "🟢"
