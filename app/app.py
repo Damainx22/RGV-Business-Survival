@@ -633,10 +633,7 @@ elif page == "ℹ️ About":
     | Data Collection | SBA 7(a) FOIA loan data, US Census ACS, County Business Patterns, Business Dynamics Statistics |
     | Data Cleaning | Filtered to Texas, FY 2018–2022, ~8,000 loans |
     | EDA | 12 visualizations exploring default patterns by industry, time, geography, and business attributes |
-    | Statistical Analysis | MLE estimation of default rate (12.1%, 95% CI: 11.4–12.8%), differential analysis across industry/county/loan size, 
-    | hypothesis testing (Z-test, Chi-Square), permutation testing confirming loan size effect (p=0.0000), Pearson & point-biserial correlations,
-    | and mutual information rankings — identified businessage, terminmonths, initialinterestrate
-    | and naicsdescription as the strongest predictors of default |
+    | Statistical Analysis | MLE estimation of default rate (12.1%, 95% CI: 11.4–12.8%), differential analysis across industry/county/loan size, hypothesis testing (Z-test, Chi-Square), permutation testing confirming loan size effect (p=0.0000), Pearson & point-biserial correlations, and mutual information rankings — identified businessage, terminmonths, initialinterestrate, and naicsdescription as the strongest predictors of default |
     | Modeling | XGBoost classifier — 94% accuracy, ROC-AUC 0.964, 81% recall on defaults |
     | Explainability | SHAP values to explain individual predictions |
     | Deployment | This Streamlit app |
