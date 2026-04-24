@@ -26,28 +26,28 @@ st.set_page_config(
 
 st.markdown("""
 <style>
-/* Base */
+/* Page */
 .stApp {
-    background: #ffffff;
+    background-color: #ffffff;
     color: #111827;
-    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
 }
 
-/* Remove ALL old dark styles */
+/* Sidebar */
 section[data-testid="stSidebar"] {
-    background: #ffffff;
+    background-color: #ffffff;
+    border-right: 1px solid #e5e7eb;
 }
 
-/* Clean inputs */
-div[data-baseweb="select"] > div {
-    background-color: #ffffff !important;
-    border: 1px solid #e5e7eb !important;
-    border-radius: 8px !important;
+/* Fix ALL text visibility */
+h1, h2, h3, h4, h5, h6, p, span, label {
     color: #111827 !important;
 }
 
-/* Dropdown text */
-div[data-baseweb="select"] span {
+/* Select boxes */
+div[data-baseweb="select"] > div {
+    background-color: #ffffff !important;
+    border: 1px solid #e5e7eb !important;
+    border-radius: 6px !important;
     color: #111827 !important;
 }
 
@@ -57,21 +57,20 @@ ul[role="listbox"] {
     border: 1px solid #e5e7eb !important;
 }
 
-/* Slider */
-.stSlider > div {
-    color: #2563eb;
-}
-
-/* Number input */
+/* Inputs */
 input {
     background-color: #ffffff !important;
     border: 1px solid #e5e7eb !important;
-    border-radius: 8px !important;
     color: #111827 !important;
 }
 
-/* Remove weird dark blocks */
-.css-1d391kg, .css-1cypcdb {
+/* Radio buttons (sidebar nav) */
+div[role="radiogroup"] label {
+    color: #111827 !important;
+}
+
+/* Remove dark leftovers */
+[class*="css-"] {
     background: transparent !important;
 }
 </style>
