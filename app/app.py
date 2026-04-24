@@ -10,7 +10,6 @@ Deploy: push to GitHub and connect via share.streamlit.io
 
 import streamlit as st
 import pandas as pd
-import numpy as np
 import joblib
 import os
 import glob
@@ -20,128 +19,204 @@ import glob
 # ─────────────────────────────────────────────
 st.set_page_config(
     page_title="RGV Business Survival Predictor",
-    page_icon="📊",
+    page_icon="",
     layout="wide",
     initial_sidebar_state="expanded",
 )
 
 # ─────────────────────────────────────────────
-# CUSTOM CSS  (clean, readable, professional)
+# CUSTOM CSS  (minimal, light, professional)
 # ─────────────────────────────────────────────
 st.markdown("""
 <style>
-    /* Import fonts */
-    @import url('https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=DM+Sans:wght@300;400;500;600&display=swap');
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
 
-    /* Root variables */
     :root {
-        --primary: #1a1a2e;
-        --accent: #e94560;
-        --gold: #f5a623;
-        --green: #27ae60;
-        --red: #e74c3c;
-        --surface: #16213e;
-        --card: #0f3460;
-        --text: #eaeaea;
-        --muted: #a0a8b8;
+        --background: #f8fafc;
+        --surface: #ffffff;
+        --surface-soft: #f1f5f9;
+        --border: #e2e8f0;
+        --text: #0f172a;
+        --muted: #64748b;
+        --accent: #2563eb;
+        --accent-soft: #eff6ff;
+        --success: #15803d;
+        --warning: #b45309;
+        --danger: #b91c1c;
     }
 
-    /* Global */
+    html, body, [class*="css"] {
+        font-family: 'Inter', sans-serif;
+    }
+
     .stApp {
-        background: linear-gradient(135deg, #0d0d1a 0%, #1a1a2e 100%);
+        background: var(--background);
         color: var(--text);
-        font-family: 'DM Sans', sans-serif;
     }
 
-    /* Sidebar */
     section[data-testid="stSidebar"] {
-        background: #0f0f1f !important;
-        border-right: 1px solid #2a2a4a;
+        background: var(--surface) !important;
+        border-right: 1px solid var(--border);
     }
 
-    /* Headers */
-    h1, h2, h3 {
-        font-family: 'Space Mono', monospace !important;
+    section[data-testid="stSidebar"] * {
         color: var(--text) !important;
     }
 
-    /* Cards */
+    h1, h2, h3, h4 {
+        color: var(--text) !important;
+        letter-spacing: -0.03em;
+    }
+
+    p, li, label, span, div {
+        color: var(--text);
+    }
+
+    .page-header {
+        background: var(--surface);
+        border: 1px solid var(--border);
+        border-radius: 18px;
+        padding: 32px;
+        margin-bottom: 28px;
+    }
+
+    .eyebrow {
+        color: var(--accent);
+        font-size: 0.78rem;
+        font-weight: 700;
+        letter-spacing: 0.12em;
+        text-transform: uppercase;
+        margin-bottom: 8px;
+    }
+
+    .subtitle {
+        color: var(--muted);
+        font-size: 1.02rem;
+        line-height: 1.65;
+        max-width: 760px;
+        margin-top: 8px;
+    }
+
     .metric-card {
-        background: linear-gradient(135deg, #0f3460, #16213e);
-        border: 1px solid #2a2a5a;
-        border-radius: 12px;
-        padding: 20px 24px;
+        background: var(--surface);
+        border: 1px solid var(--border);
+        border-radius: 16px;
+        padding: 22px 24px;
         margin: 8px 0;
+        box-shadow: 0 1px 2px rgba(15, 23, 42, 0.04);
+    }
+
+    .metric-label {
+        color: var(--muted);
+        font-size: 0.82rem;
+        font-weight: 600;
+        margin-bottom: 8px;
+    }
+
+    .big-number {
+        font-size: 2.4rem;
+        font-weight: 700;
+        line-height: 1;
+        letter-spacing: -0.04em;
     }
 
     .risk-high {
-        border-left: 4px solid var(--red);
-        background: linear-gradient(135deg, rgba(231,76,60,0.15), #16213e);
+        border-left: 4px solid var(--danger);
     }
 
     .risk-medium {
-        border-left: 4px solid var(--gold);
-        background: linear-gradient(135deg, rgba(245,166,35,0.15), #16213e);
+        border-left: 4px solid var(--warning);
     }
 
     .risk-low {
-        border-left: 4px solid var(--green);
-        background: linear-gradient(135deg, rgba(39,174,96,0.15), #16213e);
+        border-left: 4px solid var(--success);
     }
 
-    /* Big number */
-    .big-number {
-        font-family: 'Space Mono', monospace;
-        font-size: 3rem;
-        font-weight: 700;
-        line-height: 1;
+    .info-card {
+        background: var(--surface);
+        border: 1px solid var(--border);
+        border-radius: 16px;
+        padding: 20px 22px;
+        margin: 14px 0;
     }
 
-    /* Disclaimer */
+    .soft-card {
+        background: var(--accent-soft);
+        border: 1px solid #bfdbfe;
+        border-radius: 16px;
+        padding: 20px 22px;
+        margin: 14px 0;
+    }
+
     .disclaimer {
-        background: rgba(255,255,255,0.04);
-        border: 1px solid rgba(255,255,255,0.1);
-        border-radius: 8px;
-        padding: 14px 18px;
-        font-size: 0.82rem;
+        background: var(--surface-soft);
+        border: 1px solid var(--border);
+        border-radius: 14px;
+        padding: 16px 18px;
+        font-size: 0.9rem;
         color: var(--muted);
-        margin-top: 16px;
+        margin-top: 18px;
+        line-height: 1.55;
     }
 
-    /* Section label */
-    .section-label {
-        font-family: 'Space Mono', monospace;
-        font-size: 0.7rem;
-        letter-spacing: 0.15em;
-        text-transform: uppercase;
-        color: var(--accent);
-        margin-bottom: 6px;
+    .chart-title {
+        font-weight: 650;
+        font-size: 0.98rem;
+        margin: 10px 0 8px 0;
+        color: var(--text);
     }
 
-    /* Insight pill */
-    .insight-pill {
-        display: inline-block;
-        background: rgba(233,69,96,0.15);
-        border: 1px solid rgba(233,69,96,0.3);
-        border-radius: 20px;
-        padding: 4px 14px;
-        font-size: 0.82rem;
-        color: #f08090;
-        margin: 4px 4px 4px 0;
+    .small-note {
+        color: var(--muted);
+        font-size: 0.88rem;
+        line-height: 1.55;
     }
 
-    /* Stmetric overrides */
+    div[data-testid="stMetric"] {
+        background: var(--surface);
+        border: 1px solid var(--border);
+        border-radius: 16px;
+        padding: 18px 20px;
+        box-shadow: 0 1px 2px rgba(15, 23, 42, 0.04);
+    }
+
+    [data-testid="stMetricLabel"] p {
+        color: var(--muted) !important;
+        font-size: 0.82rem !important;
+    }
+
     [data-testid="stMetricValue"] {
-        font-family: 'Space Mono', monospace !important;
         color: var(--text) !important;
+        font-size: 1.8rem !important;
+        letter-spacing: -0.04em;
+    }
+
+    .stButton > button {
+        background: var(--text);
+        color: white;
+        border: 1px solid var(--text);
+        border-radius: 12px;
+        padding: 0.7rem 1rem;
+        font-weight: 650;
+    }
+
+    .stButton > button:hover {
+        background: #1e293b;
+        border-color: #1e293b;
+        color: white;
+    }
+
+    hr {
+        border: none;
+        border-top: 1px solid var(--border);
+        margin: 28px 0;
     }
 </style>
 """, unsafe_allow_html=True)
 
 
 # ─────────────────────────────────────────────
-# DATA: NAICS DESCRIPTIONS (top industries)
-# These match what the model was trained on.
+# DATA: NAICS DESCRIPTIONS
 # ─────────────────────────────────────────────
 NAICS_OPTIONS = [
     "Advertising Agencies",
@@ -201,25 +276,20 @@ BUSINESS_AGES = [
 
 
 # ─────────────────────────────────────────────
-# MODEL LOADING (cached)
+# MODEL LOADING
 # ─────────────────────────────────────────────
-@st.cache_resource(show_spinner="Loading model…")
+@st.cache_resource(show_spinner="Loading model...")
 def load_model():
-    """
-    Try multiple paths so the app works both:
-    - Locally in Colab (Google Drive path)
-    - On Streamlit Cloud (models/ folder in the repo)
-    """
     candidate_dirs = [
-        os.path.join(os.path.dirname(__file__), "..", "models"),     # repo: models/
-        os.path.join(os.path.dirname(__file__), "models"),            # app/models/
-        "/content/drive/MyDrive/rgv_business_survival/models",        # Colab Drive
+        os.path.join(os.path.dirname(__file__), "..", "models"),
+        os.path.join(os.path.dirname(__file__), "models"),
+        "/content/drive/MyDrive/rgv_business_survival/models",
     ]
     for d in candidate_dirs:
         model_path = os.path.join(d, "xgb_model.pkl")
-        cols_path  = os.path.join(d, "feature_columns.pkl")
+        cols_path = os.path.join(d, "feature_columns.pkl")
         if os.path.exists(model_path) and os.path.exists(cols_path):
-            model   = joblib.load(model_path)
+            model = joblib.load(model_path)
             columns = joblib.load(cols_path)
             return model, columns, d
     return None, None, None
@@ -227,7 +297,6 @@ def load_model():
 
 @st.cache_data(show_spinner=False)
 def find_charts():
-    """Find chart PNGs from any of the known locations."""
     candidate_dirs = [
         os.path.join(os.path.dirname(__file__), "..", "charts"),
         os.path.join(os.path.dirname(__file__), "charts"),
@@ -241,7 +310,7 @@ def find_charts():
 
 
 # ─────────────────────────────────────────────
-# PREDICTION HELPER
+# HELPER FUNCTIONS
 # ─────────────────────────────────────────────
 def build_input_row(
     naics_desc,
@@ -251,34 +320,21 @@ def build_input_row(
     gross_approval,
     columns,
 ):
-    """
-    Build a single-row DataFrame that matches the 608-column feature matrix.
-    Numeric columns are filled directly; one-hot columns are set to 0 by default,
-    then the matching column for each categorical selection is set to 1.
-    """
     row = pd.DataFrame([{col: 0 for col in columns}])
 
-    # ── Numeric features ──────────────────────────────────────────────
     if "terminmonths" in columns:
         row["terminmonths"] = term_months
     if "grossapproval" in columns:
         row["grossapproval"] = gross_approval
 
-    # ── One-hot: naicsdescription ──────────────────────────────────────
-    # The training data was one-hot encoded with drop_first=True via
-    # pd.get_dummies, so there's a "base" category that maps to all zeros.
-    # We search for the matching column name pattern.
     naics_col = f"naicsdescription_{naics_desc}"
     if naics_col in row.columns:
         row[naics_col] = 1
-    # If "Other (not in list)" or column not found → all zeros (base category)
 
-    # ── One-hot: businesstype ──────────────────────────────────────────
     btype_col = f"businesstype_{business_type}"
     if btype_col in row.columns:
         row[btype_col] = 1
 
-    # ── One-hot: businessage ──────────────────────────────────────────
     bage_col = f"businessage_{business_age}"
     if bage_col in row.columns:
         row[bage_col] = 1
@@ -288,71 +344,80 @@ def build_input_row(
 
 def risk_level(prob):
     if prob >= 0.15:
-        return "HIGH", "risk-high", "🔴"
+        return "High", "risk-high"
     elif prob >= 0.08:
-        return "MEDIUM", "risk-medium", "🟡"
+        return "Medium", "risk-medium"
     else:
-        return "LOW", "risk-low", "🟢"
+        return "Low", "risk-low"
+
+
+def page_header(label, title, subtitle):
+    st.markdown(f"""
+    <div class="page-header">
+        <div class="eyebrow">{label}</div>
+        <h1 style="margin:0;">{title}</h1>
+        <div class="subtitle">{subtitle}</div>
+    </div>
+    """, unsafe_allow_html=True)
 
 
 # ─────────────────────────────────────────────
 # SIDEBAR NAVIGATION
 # ─────────────────────────────────────────────
 with st.sidebar:
-    st.markdown("### 📊 RGV Business\nSurvival Predictor")
+    st.markdown("### RGV Business Survival Predictor")
+    st.caption("Group 12 · Los Datos")
     st.markdown("---")
     page = st.radio(
-        "Navigate",
-        ["🔮 Prediction Tool", "📈 EDA & Insights", "ℹ️ About"],
+        "Navigation",
+        ["Prediction Tool", "EDA & Insights", "About"],
         label_visibility="collapsed",
     )
     st.markdown("---")
-    st.caption("Group 12 · Los Datos\nUTRGV Intro to Data Science")
+    st.caption("UTRGV Intro to Data Science")
 
 
 # ─────────────────────────────────────────────
 # PAGE 1 — PREDICTION TOOL
 # ─────────────────────────────────────────────
-if page == "🔮 Prediction Tool":
+if page == "Prediction Tool":
 
-    st.markdown("## 🔮 SBA Loan Default Risk Predictor")
-    st.markdown(
-        "Enter details about a Texas small business SBA loan to estimate its probability of default. "
-        "This model was trained on ~8,000 Texas SBA 7(a) loans from fiscal years 2018–2022."
+    page_header(
+        "Prediction Tool",
+        "SBA Loan Default Risk Predictor",
+        "Estimate the probability that a Texas SBA 7(a) loan may default based on loan details and business characteristics."
     )
 
     model, columns, model_dir = load_model()
 
     if model is None:
         st.error(
-            "⚠️ Model files not found. Make sure `xgb_model.pkl` and `feature_columns.pkl` "
-            "are in a `models/` folder at the root of the repository."
+            "Model files not found. Make sure `xgb_model.pkl` and `feature_columns.pkl` are in a `models/` folder at the root of the repository."
         )
         st.stop()
 
-    # ── Input form ────────────────────────────────────────────────────
     st.markdown("### Loan Details")
 
     col1, col2 = st.columns(2)
 
     with col1:
         naics_desc = st.selectbox(
-            "Industry (NAICS Description)",
+            "Industry",
             NAICS_OPTIONS,
-            index=10,  # default: General Freight Trucking
-            help="Select the primary industry of the business",
+            index=10,
+            help="Select the primary industry of the business.",
         )
         business_type = st.selectbox(
             "Business Type",
             BUSINESS_TYPES,
-            index=0,  # Corporation
-            help="Legal entity type of the business",
+            index=0,
+            help="Legal entity type of the business.",
         )
         business_age = st.selectbox(
             "Business Age at Loan Origination",
             BUSINESS_AGES,
-            index=0,  # Existing
-            help="Was the business new (≤2 yrs) or established when the loan was issued?",
+            index=0,
+            help="Whether the business was new or established when the loan was issued.",
         )
 
     with col2:
@@ -362,7 +427,7 @@ if page == "🔮 Prediction Tool":
             max_value=360,
             value=120,
             step=12,
-            help="Duration of the SBA loan in months. Shorter terms have higher default rates.",
+            help="Duration of the SBA loan in months.",
         )
         gross_approval = st.number_input(
             "Gross Approval Amount ($)",
@@ -371,11 +436,10 @@ if page == "🔮 Prediction Tool":
             value=150_000,
             step=5_000,
             format="%d",
-            help="Total approved loan amount in USD",
+            help="Total approved loan amount in USD.",
         )
 
-    # ── Predict ───────────────────────────────────────────────────────
-    if st.button("🔮 Predict Default Risk", use_container_width=True, type="primary"):
+    if st.button("Predict Default Risk", use_container_width=True, type="primary"):
 
         input_df = build_input_row(
             naics_desc=naics_desc,
@@ -388,7 +452,7 @@ if page == "🔮 Prediction Tool":
 
         prob_default = float(model.predict_proba(input_df)[0][1])
         prob_survive = 1 - prob_default
-        level, css_class, emoji = risk_level(prob_default)
+        level, css_class = risk_level(prob_default)
 
         st.markdown("---")
         st.markdown("### Prediction Result")
@@ -398,64 +462,58 @@ if page == "🔮 Prediction Tool":
         with res_col1:
             st.markdown(f"""
             <div class="metric-card {css_class}">
-                <div class="section-label">Default Risk Level</div>
-                <div class="big-number">{emoji} {level}</div>
+                <div class="metric-label">Default Risk Level</div>
+                <div class="big-number">{level}</div>
             </div>
             """, unsafe_allow_html=True)
 
         with res_col2:
             st.markdown(f"""
             <div class="metric-card">
-                <div class="section-label">Probability of Default</div>
-                <div class="big-number" style="color:#e74c3c">{prob_default:.1%}</div>
+                <div class="metric-label">Probability of Default</div>
+                <div class="big-number" style="color:var(--danger);">{prob_default:.1%}</div>
             </div>
             """, unsafe_allow_html=True)
 
         with res_col3:
             st.markdown(f"""
             <div class="metric-card">
-                <div class="section-label">Probability of Survival</div>
-                <div class="big-number" style="color:#27ae60">{prob_survive:.1%}</div>
+                <div class="metric-label">Probability of Survival</div>
+                <div class="big-number" style="color:var(--success);">{prob_survive:.1%}</div>
             </div>
             """, unsafe_allow_html=True)
 
-        # ── What drives this prediction ───────────────────────────────
-        st.markdown("#### Key Risk Factors for This Prediction")
+        st.markdown("### Main Factors Behind This Prediction")
 
         factors = []
 
         if term_months <= 60:
-            factors.append(f"⚠️ **Short loan term ({term_months} months)** — loans under 5 years default at ~26.5%")
+            factors.append(f"Short loan term ({term_months} months): loans under 5 years default at about 26.5% in this dataset.")
         elif term_months >= 240:
-            factors.append(f"✅ **Long loan term ({term_months} months)** — loans over 20 years default at only ~0.7%")
+            factors.append(f"Long loan term ({term_months} months): loans over 20 years default at about 0.7% in this dataset.")
 
         if business_age == "New Business or 2 years or less":
-            factors.append("⚠️ **New business** — startups default at 17.1% vs 9.7% for established businesses")
+            factors.append("New business: businesses 2 years or younger default at about 17.1%, compared with 9.7% for established businesses.")
         elif business_age == "Existing or more than 2 years old":
-            factors.append("✅ **Established business** — lower default risk than new businesses")
+            factors.append("Established business: established businesses show lower default risk than new businesses in this dataset.")
 
         if business_type == "Individual":
-            factors.append("⚠️ **Individual owner** — individual-owned businesses default at 16.9%")
+            factors.append("Individual owner: individual-owned businesses default at about 16.9% in this dataset.")
         elif business_type == "Corporation":
-            factors.append("✅ **Corporation** — corporations default at 11.7%, lower than individuals")
+            factors.append("Corporation: corporations default at about 11.7%, lower than individual-owned businesses.")
 
         if naics_desc == "General Freight Trucking, Long Distance, Truckload":
-            factors.append("⚠️ **Trucking industry** — historically has ~43% default rate in this dataset")
+            factors.append("Trucking industry: long-distance truckload businesses show elevated default risk in this dataset.")
 
         if not factors:
-            factors.append("ℹ️ No extreme risk factors detected for this combination.")
+            factors.append("No extreme risk factors were detected for this combination.")
 
         for f in factors:
-            st.markdown(f)
+            st.markdown(f"<div class='info-card'>{f}</div>", unsafe_allow_html=True)
 
-        # ── Disclaimer ────────────────────────────────────────────────
         st.markdown("""
         <div class="disclaimer">
-            ⚠️ <strong>Disclaimer:</strong> This tool predicts <em>SBA loan default risk</em> as a proxy for
-            small business financial survival. Loan default ≠ business closure. This model is trained on
-            Texas SBA 7(a) loans (FY 2018–2022) and is for <strong>educational purposes only</strong>.
-            It should not be used for actual lending or business decisions. Model accuracy: 94% overall,
-            ROC-AUC: 0.964.
+            <strong>Disclaimer:</strong> This tool predicts SBA loan default risk as a proxy for small business financial survival. Loan default does not always mean business closure. This model is trained on Texas SBA 7(a) loans from FY 2018-2022 and is for educational purposes only. It should not be used for actual lending or business decisions. Model accuracy: 94% overall. ROC-AUC: 0.964.
         </div>
         """, unsafe_allow_html=True)
 
@@ -463,16 +521,15 @@ if page == "🔮 Prediction Tool":
 # ─────────────────────────────────────────────
 # PAGE 2 — EDA & INSIGHTS
 # ─────────────────────────────────────────────
-elif page == "📈 EDA & Insights":
+elif page == "EDA & Insights":
 
-    st.markdown("## 📈 EDA & Insights")
-    st.markdown(
-        "Exploratory analysis of ~8,000 Texas SBA 7(a) loans (FY 2018–2022). "
-        "Overall default rate: **12.0%**"
+    page_header(
+        "EDA & Insights",
+        "What Drives SBA Loan Default Risk?",
+        "A focused view of the most important patterns from about 8,000 Texas SBA 7(a) loans from FY 2018-2022. Overall default rate: 12.0%."
     )
 
-    # Key findings
-    st.markdown("### 🔑 Key Findings")
+    st.markdown("### Key Findings")
 
     kf1, kf2, kf3, kf4 = st.columns(4)
     with kf1:
@@ -480,89 +537,76 @@ elif page == "📈 EDA & Insights":
     with kf2:
         st.metric("Startup Default Rate", "17.1%", delta="+7.4% vs established", delta_color="inverse")
     with kf3:
-        st.metric("Short-Term Default Rate", "26.5%", help="Loans 0–5 years")
+        st.metric("Short-Term Default Rate", "26.5%")
     with kf4:
-        st.metric("Long-Term Default Rate", "0.7%", help="Loans 20–25 years")
+        st.metric("Long-Term Default Rate", "0.7%")
 
     st.markdown("---")
 
-    # Chart display
     charts = find_charts()
 
     if not charts:
         st.warning(
-            "📂 Chart images not found. To display charts here, copy your saved PNGs "
-            "from Google Drive into a `charts/` folder at the root of the repository and "
-            "push to GitHub."
+            "Chart images were not found. Add your saved PNG files to a `charts/` folder at the root of the repository."
         )
 
-        # Show hardcoded insight text as fallback
-        st.markdown("### Insights Summary (text fallback)")
+        st.markdown("### Insights Summary")
 
         insights = {
-            "Default by Industry": [
-                "Appliance repair: **63.6%** default rate (highest)",
-                "Trucking (long-distance): **~43%** default rate",
-                "Restaurants and food services: elevated risk",
+            "Industry Risk": [
+                "Appliance repair and trucking showed some of the highest default rates.",
+                "Restaurants and food-service businesses also showed elevated risk.",
             ],
-            "Default by Loan Term": [
-                "0–5 year loans: **26.5%** default rate",
-                "5–10 year loans: moderate risk",
-                "20–25 year loans: **0.7%** default rate (lowest)",
+            "Loan Term": [
+                "Loans from 0-5 years had the highest default rate at about 26.5%.",
+                "Loans from 20-25 years had the lowest default rate at about 0.7%.",
             ],
-            "Default by Business Type": [
-                "Individual owners: **16.9%** default",
-                "Corporations: **11.7%** default",
-                "Partnerships: **9.1%** default (lowest)",
+            "Business Type and Age": [
+                "New businesses were riskier than established businesses.",
+                "Individual-owned businesses showed higher default risk than corporations and partnerships.",
             ],
-            "COVID Impact (2020–2021)": [
-                "Default rate **dropped** during COVID — likely due to government relief programs",
-                "2020 default rate: **8.2%** (vs ~12% baseline)",
-            ],
-            "RGV vs Rest of Texas": [
-                "RGV default rate: **13.7%**",
-                "Rest of Texas: **11.9%**",
-                "Demographics (income, poverty) weakly correlated with defaults",
+            "RGV vs Texas": [
+                "The RGV default rate was 13.7%, compared with 11.9% for the rest of Texas.",
+                "Income, poverty, and unemployment were weakly correlated with default risk in this dataset.",
             ],
         }
 
         for title, bullets in insights.items():
-            with st.expander(f"📊 {title}", expanded=False):
+            with st.expander(title, expanded=False):
                 for b in bullets:
                     st.markdown(f"- {b}")
 
     else:
-        # Display charts in a 2-column grid
         chart_labels = [
-            "Default Rate by Industry (Top 15)",
+            "Default Rate by Industry",
             "Default Rate by Year",
             "Loan Amount vs Default",
             "RGV vs Rest of Texas",
-            "Income vs Default (by Zip)",
+            "Income vs Default by ZIP Code",
             "Default by Business Type",
             "Default by Business Age",
-            "Feature Correlation Heatmap",
-            "Top RGV Industries by Volume",
             "Default by Loan Term",
-            "RGV Survived vs Defaulted by Industry",
-            "Income Quartile: RGV vs Texas",
         ]
 
-        for i in range(0, len(charts), 2):
+        selected_charts = charts[:8]
+
+        st.markdown("### Most Important Visuals")
+        st.caption("Showing only the strongest visuals for the main takeaway.")
+
+        for i in range(0, len(selected_charts), 2):
             col_a, col_b = st.columns(2)
             with col_a:
-                label = chart_labels[i] if i < len(chart_labels) else os.path.basename(charts[i])
-                st.markdown(f"**{label}**")
-                st.image(charts[i], use_container_width=True)
-            if i + 1 < len(charts):
+                label = chart_labels[i] if i < len(chart_labels) else os.path.basename(selected_charts[i])
+                st.markdown(f"<div class='chart-title'>{label}</div>", unsafe_allow_html=True)
+                st.image(selected_charts[i], use_container_width=True)
+            if i + 1 < len(selected_charts):
                 with col_b:
-                    label = chart_labels[i+1] if i+1 < len(chart_labels) else os.path.basename(charts[i+1])
-                    st.markdown(f"**{label}**")
-                    st.image(charts[i+1], use_container_width=True)
+                    label = chart_labels[i + 1] if i + 1 < len(chart_labels) else os.path.basename(selected_charts[i + 1])
+                    st.markdown(f"<div class='chart-title'>{label}</div>", unsafe_allow_html=True)
+                    st.image(selected_charts[i + 1], use_container_width=True)
 
-    # Model performance section
     st.markdown("---")
-    st.markdown("### 🤖 Model Performance")
+    st.markdown("### Model Performance")
 
     pm1, pm2, pm3, pm4 = st.columns(4)
     with pm1:
@@ -572,102 +616,83 @@ elif page == "📈 EDA & Insights":
     with pm3:
         st.metric("ROC-AUC Score", "0.964")
     with pm4:
-        st.metric("Default Recall", "81%", help="% of actual defaults correctly identified")
+        st.metric("Default Recall", "81%")
 
-    st.markdown(
-        "XGBoost significantly outperformed Random Forest on default recall "
-        "(81% vs 31%), which is the critical metric for identifying at-risk loans."
-    )
+    st.markdown("""
+    <div class="soft-card">
+        XGBoost performed best for this project because it identified a much larger share of actual defaults than the baseline models. Default recall matters most here because the goal is to flag higher-risk loans, not just predict the majority class.
+    </div>
+    """, unsafe_allow_html=True)
 
-    # Model charts
-    _, model_dir = None, None
     _, _, model_dir = load_model()
 
     if model_dir:
-        conf_path  = os.path.join(model_dir, "confusion_matrix.png")
-        feat_path  = os.path.join(model_dir, "feature_importance.png")
-        shap_path  = os.path.join(model_dir, "shap_summary.png")
+        conf_path = os.path.join(model_dir, "confusion_matrix.png")
+        shap_path = os.path.join(model_dir, "shap_summary.png")
 
         mc1, mc2 = st.columns(2)
         with mc1:
             if os.path.exists(conf_path):
-                st.markdown("**Confusion Matrix**")
+                st.markdown("<div class='chart-title'>Confusion Matrix</div>", unsafe_allow_html=True)
                 st.image(conf_path, use_container_width=True)
         with mc2:
-            if os.path.exists(feat_path):
-                st.markdown("**Top 20 Feature Importances**")
-                st.image(feat_path, use_container_width=True)
-
-        if os.path.exists(shap_path):
-            st.markdown("**SHAP Summary Plot** — why the model makes each prediction")
-            st.image(shap_path, use_container_width=True)
+            if os.path.exists(shap_path):
+                st.markdown("<div class='chart-title'>SHAP Summary Plot</div>", unsafe_allow_html=True)
+                st.image(shap_path, use_container_width=True)
 
 
 # ─────────────────────────────────────────────
 # PAGE 3 — ABOUT
 # ─────────────────────────────────────────────
-elif page == "ℹ️ About":
+elif page == "About":
 
-    st.markdown("## ℹ️ About This Project")
+    page_header(
+        "About",
+        "About This Project",
+        "A machine learning project built to study small business loan default risk in Texas, with a focus on the Rio Grande Valley."
+    )
 
     st.markdown("""
-    ### RGV Business Survival Predictor
+    ### Project Overview
 
-    This project was built for the **UTRGV Intro to Data Science** class as a final project.
-    Our team — **Group 12 "Los Datos"** — used machine learning to predict whether an
-    SBA 7(a) small business loan would default, as a proxy for small business financial survival.
+    This project was built for the UTRGV Intro to Data Science class as a final project. Group 12, Los Datos, used machine learning to predict whether an SBA 7(a) small business loan would default. Loan default is used as a proxy for business financial distress.
 
-    ---
+    ### Team
 
-    ### The Team
     - Damian Ramirez
     - Bukola
     - Roen
-
-    ---
 
     ### What We Built
 
     | Step | Description |
     |------|-------------|
-    | Data Collection | SBA 7(a) FOIA loan data, US Census ACS, County Business Patterns, Business Dynamics Statistics |
-    | Data Cleaning | Filtered to Texas, FY 2018–2022, ~8,000 loans |
-    | EDA | 12 visualizations exploring default patterns by industry, time, geography, and business attributes |
-    | Statistical Analysis | MLE estimation of default rate (12.1%, 95% CI: 11.4–12.8%), differential analysis across industry/county/loan size, hypothesis testing (Z-test, Chi-Square), permutation testing confirming loan size effect (p=0.0000), Pearson & point-biserial correlations, and mutual information rankings — identified businessage, terminmonths, initialinterestrate, and naicsdescription as the strongest predictors of default |
-    | Modeling | XGBoost classifier — 94% accuracy, ROC-AUC 0.964, 81% recall on defaults |
-    | Explainability | SHAP values to explain individual predictions |
-    | Deployment | This Streamlit app |
-
-    ---
+    | Data Collection | SBA 7(a) FOIA loan data, US Census ACS, County Business Patterns, and Business Dynamics Statistics |
+    | Data Cleaning | Filtered to Texas, FY 2018-2022, with about 8,000 loans |
+    | EDA | Visualized default patterns by industry, time, geography, business type, business age, and loan term |
+    | Statistical Analysis | Estimated default rates, tested differences across groups, and explored correlations and feature relationships |
+    | Modeling | Built an XGBoost classifier with 94% accuracy, 0.964 ROC-AUC, and 81% recall on defaults |
+    | Explainability | Used SHAP values to interpret model predictions |
+    | Deployment | Built this Streamlit app |
 
     ### Data Sources
-    - **SBA 7(a) Loan Data** — [SBA FOIA Data](https://data.sba.gov/dataset/7-a-504-foia)
-    - **US Census ACS** — Zip-code level income, poverty, and unemployment
-    - **County Business Patterns / ZBP** — Business density by zip code
-    - **Business Dynamics Statistics** — County-level firm birth/death rates
 
-    ---
+    - SBA 7(a) Loan Data
+    - US Census ACS
+    - County Business Patterns / ZBP
+    - Business Dynamics Statistics
 
-    ### ⚠️ Important Disclaimer
+    ### Important Disclaimer
 
-    > **Loan default ≠ business closure.**
-    >
-    > This model predicts whether an SBA loan will be charged off (defaulted),
-    > which we use as a *proxy* for business financial distress. A business that defaults
-    > on an SBA loan may not close, and a business may close without defaulting on a loan.
-    >
-    > This tool is for **educational purposes only** and should not be used for
-    > actual lending, investment, or business decisions.
-    >
-    > The model was trained on Texas data from FY 2018–2022 and may not generalize
-    > to other states, time periods, or loan types.
+    Loan default does not always mean business closure. This model predicts whether an SBA loan was charged off, which is used as a proxy for financial distress. A business may default without closing, and a business may close without defaulting on an SBA loan.
 
-    ---
+    This tool is for educational purposes only and should not be used for real lending, investment, or business decisions. The model was trained on Texas data from FY 2018-2022 and may not generalize to other states, time periods, or loan types.
 
     ### Technical Details
-    - **Framework**: Python, scikit-learn, XGBoost, Pandas
-    - **App**: Streamlit
-    - **Training data**: 8,064 rows × 608 features (after one-hot encoding)
-    - **Class imbalance handling**: `scale_pos_weight` (negative/positive ratio = 7.36)
-    - **Top predictor**: Loan term (`terminmonths`) — SHAP rank #1
+
+    - Framework: Python, scikit-learn, XGBoost, Pandas
+    - App: Streamlit
+    - Training data: 8,064 rows by 608 features after one-hot encoding
+    - Class imbalance handling: `scale_pos_weight`
+    - Main predictive features: loan term, business age, interest rate, industry, and approval amount
     """)
