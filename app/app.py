@@ -24,193 +24,56 @@ st.set_page_config(
     initial_sidebar_state="expanded",
 )
 
-# ─────────────────────────────────────────────
-# CUSTOM CSS  (minimal, light, professional)
-# ─────────────────────────────────────────────
 st.markdown("""
 <style>
-    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+/* Base */
+.stApp {
+    background: #ffffff;
+    color: #111827;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+}
 
-    :root {
-        --background: #f8fafc;
-        --surface: #ffffff;
-        --surface-soft: #f1f5f9;
-        --border: #e2e8f0;
-        --text: #0f172a;
-        --muted: #64748b;
-        --accent: #2563eb;
-        --accent-soft: #eff6ff;
-        --success: #15803d;
-        --warning: #b45309;
-        --danger: #b91c1c;
-    }
+/* Remove ALL old dark styles */
+section[data-testid="stSidebar"] {
+    background: #ffffff;
+}
 
-    html, body, [class*="css"] {
-        font-family: 'Inter', sans-serif;
-    }
+/* Clean inputs */
+div[data-baseweb="select"] > div {
+    background-color: #ffffff !important;
+    border: 1px solid #e5e7eb !important;
+    border-radius: 8px !important;
+    color: #111827 !important;
+}
 
-    .stApp {
-        background: var(--background);
-        color: var(--text);
-    }
+/* Dropdown text */
+div[data-baseweb="select"] span {
+    color: #111827 !important;
+}
 
-    section[data-testid="stSidebar"] {
-        background: var(--surface) !important;
-        border-right: 1px solid var(--border);
-    }
+/* Dropdown menu */
+ul[role="listbox"] {
+    background: #ffffff !important;
+    border: 1px solid #e5e7eb !important;
+}
 
-    section[data-testid="stSidebar"] * {
-        color: var(--text) !important;
-    }
+/* Slider */
+.stSlider > div {
+    color: #2563eb;
+}
 
-    h1, h2, h3, h4 {
-        color: var(--text) !important;
-        letter-spacing: -0.03em;
-    }
+/* Number input */
+input {
+    background-color: #ffffff !important;
+    border: 1px solid #e5e7eb !important;
+    border-radius: 8px !important;
+    color: #111827 !important;
+}
 
-    p, li, label, span, div {
-        color: var(--text);
-    }
-
-    .page-header {
-        background: var(--surface);
-        border: 1px solid var(--border);
-        border-radius: 18px;
-        padding: 32px;
-        margin-bottom: 28px;
-    }
-
-    .eyebrow {
-        color: var(--accent);
-        font-size: 0.78rem;
-        font-weight: 700;
-        letter-spacing: 0.12em;
-        text-transform: uppercase;
-        margin-bottom: 8px;
-    }
-
-    .subtitle {
-        color: var(--muted);
-        font-size: 1.02rem;
-        line-height: 1.65;
-        max-width: 760px;
-        margin-top: 8px;
-    }
-
-    .metric-card {
-        background: var(--surface);
-        border: 1px solid var(--border);
-        border-radius: 16px;
-        padding: 22px 24px;
-        margin: 8px 0;
-        box-shadow: 0 1px 2px rgba(15, 23, 42, 0.04);
-    }
-
-    .metric-label {
-        color: var(--muted);
-        font-size: 0.82rem;
-        font-weight: 600;
-        margin-bottom: 8px;
-    }
-
-    .big-number {
-        font-size: 2.4rem;
-        font-weight: 700;
-        line-height: 1;
-        letter-spacing: -0.04em;
-    }
-
-    .risk-high {
-        border-left: 4px solid var(--danger);
-    }
-
-    .risk-medium {
-        border-left: 4px solid var(--warning);
-    }
-
-    .risk-low {
-        border-left: 4px solid var(--success);
-    }
-
-    .info-card {
-        background: var(--surface);
-        border: 1px solid var(--border);
-        border-radius: 16px;
-        padding: 20px 22px;
-        margin: 14px 0;
-    }
-
-    .soft-card {
-        background: var(--accent-soft);
-        border: 1px solid #bfdbfe;
-        border-radius: 16px;
-        padding: 20px 22px;
-        margin: 14px 0;
-    }
-
-    .disclaimer {
-        background: var(--surface-soft);
-        border: 1px solid var(--border);
-        border-radius: 14px;
-        padding: 16px 18px;
-        font-size: 0.9rem;
-        color: var(--muted);
-        margin-top: 18px;
-        line-height: 1.55;
-    }
-
-    .chart-title {
-        font-weight: 650;
-        font-size: 0.98rem;
-        margin: 10px 0 8px 0;
-        color: var(--text);
-    }
-
-    .small-note {
-        color: var(--muted);
-        font-size: 0.88rem;
-        line-height: 1.55;
-    }
-
-    div[data-testid="stMetric"] {
-        background: var(--surface);
-        border: 1px solid var(--border);
-        border-radius: 16px;
-        padding: 18px 20px;
-        box-shadow: 0 1px 2px rgba(15, 23, 42, 0.04);
-    }
-
-    [data-testid="stMetricLabel"] p {
-        color: var(--muted) !important;
-        font-size: 0.82rem !important;
-    }
-
-    [data-testid="stMetricValue"] {
-        color: var(--text) !important;
-        font-size: 1.8rem !important;
-        letter-spacing: -0.04em;
-    }
-
-    .stButton > button {
-        background: var(--text);
-        color: white;
-        border: 1px solid var(--text);
-        border-radius: 12px;
-        padding: 0.7rem 1rem;
-        font-weight: 650;
-    }
-
-    .stButton > button:hover {
-        background: #1e293b;
-        border-color: #1e293b;
-        color: white;
-    }
-
-    hr {
-        border: none;
-        border-top: 1px solid var(--border);
-        margin: 28px 0;
-    }
+/* Remove weird dark blocks */
+.css-1d391kg, .css-1cypcdb {
+    background: transparent !important;
+}
 </style>
 """, unsafe_allow_html=True)
 
